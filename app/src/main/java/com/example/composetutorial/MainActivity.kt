@@ -4,6 +4,8 @@ import android.content.res.Configuration
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -60,6 +62,11 @@ fun MessageCard(msg: Message) {
 
         // Keep track of if message is expanded or not.
         var isExpanded by remember { mutableStateOf(false) }
+        // surfaceColor will be updated gradually.
+        val surfaceColor by animateColorAsState(
+            if (isExpanded) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surface,
+            label = "animateMessageColor"
+        )
 
         // Toggle the isExpanded variable if Column is clicked
         Column(modifier = Modifier.clickable { isExpanded = !isExpanded }) {
@@ -69,7 +76,16 @@ fun MessageCard(msg: Message) {
                 style = MaterialTheme.typography.titleSmall
             )
             Spacer(modifier = Modifier.height(4.dp))
-            Surface(shape = MaterialTheme.shapes.medium, shadowElevation = 1.dp) {
+            Surface(
+                shape = MaterialTheme.shapes.medium,
+                shadowElevation = 1.dp,
+                // surface color will change gradually
+                color = surfaceColor,
+                // size will change gradually
+                modifier = Modifier
+                    .animateContentSize()
+                    .padding(1.dp)
+            ) {
                 Text(
                     text = msg.body,
                     style = MaterialTheme.typography.bodyMedium,
@@ -90,7 +106,7 @@ fun MessageCard(msg: Message) {
 )
 @Composable
 fun PreviewMessageCard() {
-    Surface{
+    Surface {
         MessageCard(msg = Message(author = "Lex", body = "Hi"))
     }
 }
